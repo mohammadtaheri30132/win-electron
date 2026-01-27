@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت کتاب‌ها</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* سایدبار */
+        .sidebar {
+            width: 320px;
+            background-color: #2c3e50;
+            color: white;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .sidebar-header h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .status-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .status-tab {
+            flex: 1;
+            min-width: 100px;
+            background-color: #34495e;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-tab:hover {
+            background-color: #3d566e;
+        }
+
+        .status-tab.active {
+            background-color: #3498db;
+            font-weight: bold;
+        }
+
+        .book-list {
+            list-style: none;
+            padding: 10px;
+        }
+
+        .book-item {
+            background-color: #34495e;
+            margin-bottom: 8px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-right: 4px solid transparent;
+        }
+
+        .book-item:hover {
+            background-color: #3d566e;
+            transform: translateX(-3px);
+        }
+
+        .book-item.active {
+            background-color: #3498db;
+            border-right-color: #1abc9c;
+        }
+
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .book-meta {
+            font-size: 0.8em;
+            color: #bdc3c7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* محتوا */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+.tab-count {
+    font-size: 0.85em;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-right: 5px;
+}
+        /* فرم */
+        .book-form {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95em;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .text-control {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        /* صفحات */
+        .pages-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .pages-section h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.2em;
+        }
+
+        .page-item {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .page-number {
+            background-color: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-edited {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-not-edited {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-temp {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-final {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        /* وضعیت */
+        .status-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .status-select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            font-size: 0.9em;
+        }
+
+        /* مدال */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* پیام */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .message.success {
+            background-color: #2ecc71;
+        }
+
+        .message.error {
+            background-color: #e74c3c;
+        }
+
+        /* بارگذاری */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ابزارهای کپی */
+        .copy-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .copy-tool-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.3s;
+        }
+
+        .copy-tool-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- سایدبار -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 کتاب‌ها</h2>
+<div class="status-tabs">
+    <button class="status-tab active" data-status="all">
+        همه <span class="tab-count" id="count-all">(0)</span>
+    </button>
+    <button class="status-tab" data-status="نهایی شده">
+        نهایی شده <span class="tab-count" id="count-final">(0)</span>
+    </button>
+    <button class="status-tab" data-status="ویرایش موقت">
+        ویرایش موقت <span class="tab-count" id="count-temp">(0)</span>
+    </button>
+    <button class="status-tab" data-status="ویرایش نشده">
+        ویرایش نشده <span class="tab-count" id="count-not-edited">(0)</span>
+    </button>
+</div>
+            </div>
+            <ul id="bookList" class="book-list">
+                <!-- کتاب‌ها اینجا لود می‌شوند -->
+            </ul>
+        </div>
+
+        <!-- محتوای اصلی -->
+        <div class="content">
+            <div class="header">
+                <h1 id="pageTitle">مدیریت کتاب‌ها</h1>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="downloadFile('information.json')">
+                        📥 اطلاعات
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadFile('text.json')">
+                        📥 متن‌ها
+                    </button>
+                    <button class="btn btn-success" onclick="saveChanges()">
+                        💾 ذخیره
+                    </button>
+                </div>
+            </div>
+
+            <!-- فرم اطلاعات کتاب -->
+            <div id="bookForm" class="book-form hidden">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>شناسه (Slug):</label>
+                        <input type="text" id="slug" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>نام کتاب:</label>
+                        <input type="text" id="name" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>توضیح کوتاه:</label>
+                    <textarea id="shortDesc" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>درباره نویسنده:</label>
+                    <textarea id="aboutAuthor" class="form-control text-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>درباره کتاب:</label>
+                    <textarea id="aboutBook" class="form-control text-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>نقد کتاب:</label>
+                    <textarea id="bookReview" class="form-control text-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>توضیحات کتاب:</label>
+                    <textarea id="descBook" class="form-control text-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>چه کسانی بخوانند:</label>
+                    <textarea id="whoShouldRead" class="form-control text-control"></textarea>
+                </div>
+                
+                <!-- ابزارهای کپی -->
+                <div class="copy-tools">
+                    <button class="copy-tool-btn" onclick="copyBookInfo()">
+                        📋 کپی اطلاعات کتاب
+                    </button>
+                    <button class="copy-tool-btn" onclick="copyBookText()">
+                        📋 کپی متن کتاب
+                    </button>
+                    <button class="btn btn-info btn-sm" onclick="openInfoJsonModal()">
+                        ➕ افزودن جیسون اطلاعات
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="openTextJsonModal()">
+                        ➕ افزودن جیسون متن
+                    </button>
+                </div>
+                
+                <div class="status-section">
+                    <label>وضعیت:</label>
+                    <select id="status" class="status-select">
+                        <option value="ویرایش نشده">ویرایش نشده</option>
+                        <option value="ویرایش موقت">ویرایش موقت</option>
+                        <option value="نهایی شده">نهایی شده</option>
+                    </select>
+                    <div id="statusBadge" class="status-badge status-not-edited">
+                        ویرایش نشده
+                    </div>
+                </div>
+            </div>
+
+            <!-- صفحات کتاب -->
+            <div id="pagesSection" class="pages-section hidden">
+                <h3>📄 صفحات کتاب</h3>
+                <div id="pagesContainer">
+                    <!-- صفحات اینجا لود می‌شوند -->
+                </div>
+            </div>
+
+            <!-- حالت بارگذاری -->
+            <div id="loading" class="loading">
+                <p>در حال بارگذاری کتاب‌ها...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- مدال افزودن جیسون اطلاعات -->
+    <div id="infoJsonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>افزودن جیسون اطلاعات کتاب</h3>
+                <button class="modal-close" onclick="closeInfoJsonModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>محتویات جیسون:</label>
+                    <textarea id="infoJsonInput" class="form-control" rows="15" 
+            placeholder='{
+  "slug": "book-slug", // فقط برای شناسایی - اعمال نمی‌شود
+  "name": "نام کتاب",
+  "short_desc": "توضیح کوتاه",
+  "about_the_author": "درباره نویسنده",
+  "about_the_book": "درباره کتاب",
+  "book_review": "نقد کتاب",
+  "desc_book": "توضیحات کتاب",
+  "who_should_read": "چه کسانی بخوانند"
+  // status اینجا نباشد
+}'></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeInfoJsonModal()">لغو</button>
+                <button class="btn btn-success" onclick="applyInfoJson()">اعمال ویرایش</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مدال افزودن جیسون متن -->
+    <div id="textJsonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>افزودن جیسون متن کتاب</h3>
+                <button class="modal-close" onclick="closeTextJsonModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>محتویات جیسون (آرایه صفحات):</label>
+                    <textarea id="textJsonInput" class="form-control" rows="15" 
+                              placeholder='[
+  {
+    "title": "عنوان صفحه ۱",
+    "content": "محتوا صفحه ۱"
+  },
+  {
+    "title": "عنوان صفحه ۲",
+    "content": "محتوا صفحه ۲"
+  }
+]'></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeTextJsonModal()">لغو</button>
+                <button class="btn btn-success" onclick="applyTextJson()">اعمال ویرایش</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- پیام -->
+    <div id="message" class="message"></div>
+
+    <script>
+        let currentBook = null;
+        let booksData = [];
+        let filteredBooks = [];
+        let currentFilter = 'all';
+
+        // بارگذاری اولیه
+document.addEventListener('DOMContentLoaded', function() {
+    // اضافه کردن event listener برای تب‌ها
+    document.querySelectorAll('.status-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const status = this.getAttribute('data-status');
+            filterBooks(status);
+        });
+    });
+    
+   
+    
+    // بارگذاری کتاب‌ها
+    loadBooks();
+});
+        // بارگذاری لیست کتاب‌ها
+// ✅ این تابع را جایگزین هر دو تابع loadBooks کنید
+async function loadBooks() {
+    try {
+        booksData = await window.api.getBooks();
+        
+        if (!Array.isArray(booksData)) {
+            booksData = [];
+        }
+        
+        
+        // اول تعداد تب‌ها را آپدیت کن
+        updateTabCounts(booksData);
+        
+        // سپس کتاب‌ها را نمایش بده
+        filterBooks('all');
+        
+        document.getElementById('loading').classList.add('hidden');
+        
+    } catch (error) {
+        showMessage('خطا در بارگذاری کتاب‌ها: ' + error.message, 'error');
+        console.error('Load books error:', error);
+    }
+}
+// فیلتر کردن کتاب‌ها بر اساس وضعیت
+function filterBooks(status) {
+    
+    currentFilter = status;
+    
+    // آپدیت تب‌های فعال
+    document.querySelectorAll('.status-tab').forEach((tab, index) => {
+        tab.classList.remove('active');
+        if (status === 'all' && index === 0) {
+            tab.classList.add('active');
+        } else if (tab.textContent.includes(status)) {
+            tab.classList.add('active');
+        }
+    });
+    
+    if (status === 'all') {
+        filteredBooks = [...booksData];
+    } else {
+        filteredBooks = booksData.filter(book => book.status === status);
+    }
+    
+    displayBooks(filteredBooks);
+}
+
+
+        // نمایش لیست کتاب‌ها
+        function displayBooks(books) {
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+
+            if (books.length === 0) {
+                bookList.innerHTML = '<div class="loading">کتابی یافت نشد</div>';
+                return;
+            }
+
+            books.forEach(book => {
+                const li = document.createElement('li');
+                li.className = 'book-item';
+                li.onclick = () => selectBook(book.slug);
+                
+                li.innerHTML = `
+                    <div class="book-title">${book.name || 'بدون نام'}</div>
+                    <div class="book-meta">
+                        <span>${book.pages_count || 0} صفحه</span>
+                        <span class="status-badge ${getStatusClass(book.status)}">
+                            ${book.status}
+                        </span>
+                    </div>
+                `;
+                
+                bookList.appendChild(li);
+            });
+        }
+
+        // کلاس وضعیت
+        function getStatusClass(status) {
+            switch(status) {
+                case 'نهایی شده': return 'status-final';
+                case 'ویرایش موقت': return 'status-temp';
+                case 'ویرایش شده': return 'status-edited';
+                default: return 'status-not-edited';
+            }
+        }
+
+
+
+
+async function selectBook(slug) {
+    try {
+        // هایلایت آیتم انتخاب شده
+        document.querySelectorAll('.book-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // پیدا کردن آیتم مربوطه
+        const items = document.querySelectorAll('.book-item');
+        for (let item of items) {
+            if (item.querySelector('.book-title').textContent === 
+                booksData.find(b => b.slug === slug)?.name) {
+                item.classList.add('active');
+                break;
+            }
+        }
+
+        // دریافت اطلاعات کتاب
+        currentBook = await window.api.getBook(slug);
+        displayBookDetails(currentBook);
+    } catch (error) {
+        showMessage('خطا در بارگذاری کتاب: ' + error.message, 'error');
+    }
+}
+
+        // نمایش جزئیات کتاب
+        function displayBookDetails(book) {
+            // به‌روزرسانی عنوان صفحه
+            document.getElementById('pageTitle').textContent = book.data?.name || 'مدیریت کتاب';
+            
+            // نمایش فرم
+            const form = document.getElementById('bookForm');
+            form.classList.remove('hidden');
+            
+            // پر کردن فرم
+            document.getElementById('slug').value = book.slug;
+            document.getElementById('name').value = book.data?.name || '';
+            document.getElementById('shortDesc').value = book.data?.short_desc || '';
+            document.getElementById('aboutAuthor').value = book.data?.about_the_author || '';
+            document.getElementById('aboutBook').value = book.data?.about_the_book || '';
+            document.getElementById('bookReview').value = book.data?.book_review || '';
+            document.getElementById('descBook').value = book.data?.desc_book || '';
+            document.getElementById('whoShouldRead').value = book.data?.who_should_read || '';
+            document.getElementById('status').value = book.status || 'ویرایش نشده';
+            
+            // به‌روزرسانی نشان وضعیت
+            updateStatusBadge(book.status);
+            
+            // نمایش صفحات
+            displayPages(book.pages);
+        }
+
+        // نمایش صفحات کتاب
+        function displayPages(pages) {
+            const pagesSection = document.getElementById('pagesSection');
+            const container = document.getElementById('pagesContainer');
+            
+            pagesSection.classList.remove('hidden');
+            container.innerHTML = '';
+
+            if (pages.length === 0) {
+                container.innerHTML = '<p class="loading">این کتاب هیچ صفحه‌ای ندارد.</p>';
+                return;
+            }
+
+            pages.forEach((page, index) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page-item';
+                pageDiv.innerHTML = `
+                    <div class="page-header">
+                        <div class="page-number">صفحه ${index + 1}</div>
+                    </div>
+                    <div class="form-group">
+                        <label>عنوان صفحه:</label>
+                        <input type="text" 
+                               class="form-control page-title" 
+                               data-index="${index}"
+                               value="${page.title || ''}"
+                               oninput="markPageChanged(${index}, 'title', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>محتوا:</label>
+                        <textarea class="form-control page-content text-control" 
+                                  data-index="${index}"
+                                  rows="6"
+                                  oninput="markPageChanged(${index}, 'content', this.value)">${page.content || ''}</textarea>
+                    </div>
+                `;
+                container.appendChild(pageDiv);
+            });
+        }
+
+        // تغییر وضعیت
+        document.getElementById('status').addEventListener('change', function() {
+            if (currentBook) {
+                currentBook.status = this.value;
+                updateStatusBadge(this.value);
+            }
+        });
+
+        // به‌روزرسانی نشان وضعیت
+        function updateStatusBadge(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = status;
+            badge.className = `status-badge ${getStatusClass(status)}`;
+        }
+
+        // صفحات تغییر کرده
+        const changedPages = new Map();
+
+        function markPageChanged(index, field, value) {
+            if (!currentBook) return;
+            
+            const pageKey = `${currentBook.slug}-${index}`;
+            if (!changedPages.has(pageKey)) {
+                changedPages.set(pageKey, { index, changes: {} });
+            }
+            
+            const page = changedPages.get(pageKey);
+            page.changes[field] = value;
+        }
+
+function copyBookInfo() {
+    if (!currentBook) {
+        showMessage('لطفاً ابتدا کتابی را انتخاب کنید', 'error');
+        return;
+    }
+
+    const bookInfo = {
+        name: document.getElementById('name').value,
+        short_desc: document.getElementById('shortDesc').value,
+        about_the_author: document.getElementById('aboutAuthor').value,
+        about_the_book: document.getElementById('aboutBook').value,
+        book_review: document.getElementById('bookReview').value,
+        desc_book: document.getElementById('descBook').value,
+        who_should_read: document.getElementById('whoShouldRead').value,
+    };
+
+    const prefixText = `
+تو یک مترجم حرفه‌ای کتاب هستی.
+متن ورودی فایل جیسون است 
+و خروجی مستقیم میخواهم با فرمت جیسون 
+
+متن زیر را از انگلیسی به فارسی ترجمه کن به شکلی که:
+- کاملاً روان و طبیعی و پیوسته باشد
+- متن خلاصه سازی نشود
+- از خلاقیت جهت انتقال بهتر مفهوم در صورت نیاز استفاده شود
+-مهم ترین چیز لحن محاوره ای کتاب است که مثل یک دوست باادب مینویسد
+- ترجمه تحت‌اللفظی نباشد
+- معادل‌سازی مفهومی انجام شود
+-اسامی را به فارسی معادل سازی کن 
+
+خروجی مستقیم و در قالب جیسون باشد
+
+`;
+
+    const jsonString = JSON.stringify(bookInfo, null, 2);
+    const finalText = prefixText + jsonString;
+
+    navigator.clipboard.writeText(finalText)
+        .then(() => showMessage('اطلاعات کتاب و متن ترجمه شده کپی شد', 'success'))
+        .catch(() => showMessage('خطا در کپی کردن', 'error'));
+}
+
+
+        // کپی متن کتاب
+        function copyBookText() {
+            if (!currentBook || !currentBook.pages || currentBook.pages.length === 0) {
+                showMessage('این کتاب صفحه‌ای ندارد', 'error');
+                return;
+            }
+
+            const pages = currentBook.pages.map(page => ({
+                title: page.title || '',
+                content: page.content || ''
+            }));
+    const prefixText = `
+تو یک مترجم حرفه‌ای کتاب هستی.
+متن ورودی فایل جیسون است 
+و خروجی مستقیم میخواهم با فرمت جیسون 
+
+متن زیر را از انگلیسی به فارسی ترجمه کن به شکلی که:
+- کاملاً روان و طبیعی و پیوسته باشد
+- متن خلاصه سازی نشود
+- از خلاقیت جهت انتقال بهتر مفهوم در صورت نیاز استفاده شود
+-مهم ترین چیز لحن محاوره ای کتاب است که مثل یک دوست باادب مینویسد
+- ترجمه تحت‌اللفظی نباشد
+- معادل‌سازی مفهومی انجام شود
+- منظور از Blink خلاصه است
+-اسامی را به فارسی معادل سازی کن 
+
+خروجی مستقیم و در قالب جیسون باشد
+
+‍‍‍`
+            const jsonString = JSON.stringify(pages, null, 2);
+            const prompt =prefixText+ jsonString 
+            navigator.clipboard.writeText(prompt)
+                .then(() => showMessage('متن کتاب کپی شد', 'success'))
+                .catch(() => showMessage('خطا در کپی کردن', 'error'));
+        }
+
+        // باز کردن مدال جیسون اطلاعات
+        function openInfoJsonModal() {
+            if (!currentBook) {
+                showMessage('لطفاً ابتدا کتابی را انتخاب کنید', 'error');
+                return;
+            }
+
+            // پر کردن slug در نمونه JSON
+            const sampleJson = {
+                slug: currentBook.slug,
+                name: document.getElementById('name').value,
+                short_desc: document.getElementById('shortDesc').value,
+                about_the_author: document.getElementById('aboutAuthor').value,
+                about_the_book: document.getElementById('aboutBook').value,
+                book_review: document.getElementById('bookReview').value,
+                desc_book: document.getElementById('descBook').value,
+                who_should_read: document.getElementById('whoShouldRead').value,
+                status: currentBook.status
+            };
+
+            document.getElementById('infoJsonInput').value = JSON.stringify(sampleJson, null, 2);
+            document.getElementById('infoJsonModal').classList.add('active');
+        }
+
+        // بستن مدال جیسون اطلاعات
+        function closeInfoJsonModal() {
+            document.getElementById('infoJsonModal').classList.remove('active');
+        }
+
+        // اعمال جیسون اطلاعات
+async function applyInfoJson() {
+    try {
+        const jsonText = document.getElementById('infoJsonInput').value;
+        const jsonData = JSON.parse(jsonText);
+
+        // slug را از کتاب فعلی بگیر، نه از JSON
+        const currentSlug = currentBook.slug;
+        
+        // حذف slug و status اگر وجود داشته باشند
+        delete jsonData.slug;
+        delete jsonData.status;
+
+        // ارسال به API با slug جداگانه
+        await window.api.addInfoJson(currentSlug, jsonData);
+        
+        closeInfoJsonModal();
+        showMessage('اطلاعات کتاب با موفقیت بروزرسانی شد', 'success');
+        
+        // رفرش داده‌ها
+        await loadBooks();
+        await selectBook(currentSlug);
+        
+    } catch (error) {
+        showMessage('خطا در پردازش JSON: ' + error.message, 'error');
+    }
+}
+        function openTextJsonModal() {
+            if (!currentBook) {
+                showMessage('لطفاً ابتدا کتابی را انتخاب کنید', 'error');
+                return;
+            }
+
+            // نمایش صفحات فعلی در نمونه
+            const samplePages = currentBook.pages.map(page => ({
+                title: page.title || '',
+                content: page.content || ''
+            }));
+
+            document.getElementById('textJsonInput').value = JSON.stringify(samplePages, null, 2);
+            document.getElementById('textJsonModal').classList.add('active');
+        }
+
+        // بستن مدال جیسون متن
+        function closeTextJsonModal() {
+            document.getElementById('textJsonModal').classList.remove('active');
+        }
+
+        // اعمال جیسون متن
+        async function applyTextJson() {
+            try {
+                const jsonText = document.getElementById('textJsonInput').value;
+                const pages = JSON.parse(jsonText);
+
+                // اعتبارسنجی
+                if (!Array.isArray(pages)) {
+                    showMessage('داده باید یک آرایه باشد', 'error');
+                    return;
+                }
+
+                // ارسال به API
+                await window.api.addTextJson(currentBook.slug, pages);
+                
+                closeTextJsonModal();
+                showMessage('متن کتاب با موفقیت بروزرسانی شد', 'success');
+                
+                // رفرش داده‌ها
+                await loadBooks();
+                await selectBook(currentBook.slug);
+                
+            } catch (error) {
+                showMessage('خطا در پردازش JSON: ' + error.message, 'error');
+            }
+        }
+
+        // ذخیره تغییرات
+        async function saveChanges() {
+            if (!currentBook) {
+                showMessage('لطفاً ابتدا کتابی را انتخاب کنید', 'error');
+                return;
+            }
+
+            try {
+                // جمع‌آوری تغییرات اطلاعات
+                const changedData = {};
+                const name = document.getElementById('name').value;
+                const shortDesc = document.getElementById('shortDesc').value;
+                const aboutAuthor = document.getElementById('aboutAuthor').value;
+                const aboutBook = document.getElementById('aboutBook').value;
+                const bookReview = document.getElementById('bookReview').value;
+                const descBook = document.getElementById('descBook').value;
+                const whoShouldRead = document.getElementById('whoShouldRead').value;
+                
+                if (name !== currentBook.data?.name) changedData.name = name;
+                if (shortDesc !== currentBook.data?.short_desc) changedData.short_desc = shortDesc;
+                if (aboutAuthor !== currentBook.data?.about_the_author) changedData.about_the_author = aboutAuthor;
+                if (aboutBook !== currentBook.data?.about_the_book) changedData.about_the_book = aboutBook;
+                if (bookReview !== currentBook.data?.book_review) changedData.book_review = bookReview;
+                if (descBook !== currentBook.data?.desc_book) changedData.desc_book = descBook;
+                if (whoShouldRead !== currentBook.data?.who_should_read) changedData.who_should_read = whoShouldRead;
+
+                // جمع‌آوری تغییرات صفحات
+                const pagesChanges = [];
+                changedPages.forEach((page, key) => {
+                    if (key.startsWith(currentBook.slug)) {
+                        pagesChanges.push({
+                            index: page.index,
+                            ...page.changes
+                        });
+                    }
+                });
+
+                // ارسال برای ذخیره
+                await window.api.saveBook({
+                    slug: currentBook.slug,
+                    changedData,
+                    changedPages: pagesChanges,
+                    status: currentBook.status
+                });
+
+                // پاک کردن تغییرات ذخیره شده
+                changedPages.clear();
+
+                showMessage('تغییرات با موفقیت ذخیره شد', 'success');
+                
+                // رفرش لیست کتاب‌ها
+                await loadBooks();
+                                        updateTabCounts(booksData);
+
+            } catch (error) {
+                showMessage('خطا در ذخیره: ' + error.message, 'error');
+            }
+        }
+
+        // دانلود فایل
+        async function downloadFile(filename) {
+            try {
+                const result = await window.api.downloadFile(filename);
+                if (result.success) {
+                    // ایجاد لینک دانلود
+                    const blob = new Blob([result.content], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showMessage(`فایل ${filename} با موفقیت دانلود شد`, 'success');
+                }
+            } catch (error) {
+                showMessage('خطا در دانلود: ' + error.message, 'error');
+            }
+        }
+
+        // نمایش پیام
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 3000);
+        }
+                // به‌روزرسانی تعداد کتاب‌ها در تب‌ها
+// به‌روزرسانی تعداد کتاب‌ها در تب‌ها
+function updateTabCounts() {
+    
+    if (!Array.isArray(booksData)) {
+        booksData = [];
+    }
+    
+    // محاسبه تعداد - با لاگ برای دیباگ
+    const allCount = booksData.length;
+    const finalCount = booksData.filter(b => b.status === 'نهایی شده').length;
+    const tempCount = booksData.filter(b => b.status === 'ویرایش موقت').length;
+    const notEditedCount = booksData.filter(b => 
+        !b.status || 
+        b.status === 'ویرایش نشده' || 
+        b.status === ''
+    ).length;
+    
+
+    
+    // به‌روزرسانی اعداد در DOM
+    const countAll = document.getElementById('count-all');
+    const countFinal = document.getElementById('count-final');
+    const countTemp = document.getElementById('count-temp');
+    const countNotEdited = document.getElementById('count-not-edited');
+    
+    if (countAll) countAll.textContent = `(${allCount})`;
+    if (countFinal) countFinal.textContent = `(${finalCount})`;
+    if (countTemp) countTemp.textContent = `(${tempCount})`;
+    if (countNotEdited) countNotEdited.textContent = `(${notEditedCount})`;
+    
+    
+}
+    </script>
+</body>
+</html>
