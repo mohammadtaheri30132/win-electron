@@ -1,2 +1,4 @@
 text.json filter=lfs diff=lfs merge=lfs -text
 information.json filter=lfs diff=lfs merge=lfs -text
+src/information.json filter=lfs diff=lfs merge=lfs -text
+src/text.json filter=lfs diff=lfs merge=lfs -text
