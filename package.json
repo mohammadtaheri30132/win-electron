@@ -7,8 +7,8 @@
     "build": "electron-builder"
   },
   "devDependencies": {
-    "electron": "^latest-version",
-    "electron-builder": "^24.6.0"
+  "electron": "latest",
+  "electron-builder": "^24.6.0"
   },
   "build": {
     "appId": "com.yourname.yourproject",
